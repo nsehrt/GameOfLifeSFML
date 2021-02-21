@@ -112,7 +112,7 @@ bool Gol::run()
         mainView.move(normTranslation * mSpeed * fTime);
 
 
-
+        //process mouse
         const sf::Vector2<int> mPos{ (int)mainView.getCenter().x - (int)renderTexture.getSize().x / 2, (int)mainView.getCenter().y - (int)renderTexture.getSize().y / 2 };
         const auto mousePos = sf::Mouse::getPosition(window) + mPos;
         mouseCurr = sf::Mouse::isButtonPressed(sf::Mouse::Left);
