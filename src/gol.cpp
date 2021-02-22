@@ -244,7 +244,7 @@ bool Gol::run()
         ImGui::Begin("settings window", NULL, ImGuiWindowFlags_AlwaysAutoResize);
 
 
-        if(ImGui::Button(gs == GState::Drawing ? "Play" : "Pause"))
+        if(ImGui::Button(gs == GState::Drawing ? "Play" : "Stop"))
         {
             gs = gs == GState::Drawing ? GState::Playing : GState::Drawing;
             if(gs == GState::Playing) amountSteps = 0;
@@ -254,7 +254,7 @@ bool Gol::run()
         ImGui::Text("Alive cells: %d", amountAlive);
         ImGui::Text("Step number: %d", amountSteps);
         ImGui::Text("Mouse grid position: %d %d", xGrid, yGrid);
-        ImGui::Text("Mouse position: %.0f %.0f", pxlCoords.x, pxlCoords.y);
+        ImGui::Text("Mouse position: %d %d", pxlCoords.x, pxlCoords.y);
         ImGui::Text("Step calc time: %d ms", calcTime.asMilliseconds());
         ImGui::SliderFloat("Step time", &stepTime, 0.010f, 1.0f);
 
