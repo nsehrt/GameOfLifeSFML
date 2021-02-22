@@ -12,6 +12,8 @@ void Gol::init()
 
     ImGui::SFML::Init(window);
 
+    ImGui::GetIO().IniFilename = NULL;
+
     cells.reserve(5000);
     toDelete.reserve(1000);
     newCells.reserve(1000);
@@ -236,7 +238,7 @@ bool Gol::run()
         //IMGui setup
         ImGui::SFML::Update(window, deltaTime);
 
-        ImGui::Begin("settings window");
+        ImGui::Begin("settings window", NULL, ImGuiWindowFlags_AlwaysAutoResize);
 
 
         if(ImGui::Button(gs == GState::Drawing ? "Play" : "Pause"))
@@ -244,6 +246,7 @@ bool Gol::run()
             gs = gs == GState::Drawing ? GState::Playing : GState::Drawing;
             if(gs == GState::Playing) amountSteps = 0;
         }
+        ImGui::Separator();
 
         ImGui::Text("Alive cells: %d", amountAlive);
         ImGui::Text("Step number: %d", amountSteps);
