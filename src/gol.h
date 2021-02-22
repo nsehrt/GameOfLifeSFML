@@ -11,6 +11,9 @@
 #include "gametime.h"
 #include "grid.h"
 #include "cell.h"
+#include "mousedrag.h"
+
+// mouse drag&move, smooth zooming
 
 enum class GState
 {
@@ -66,5 +69,6 @@ class Gol
     sf::Grid grid;
     std::vector<Cell> cells{};
     GameTime gt{};
+    sf::MouseDrag mouseDrag{};
     const float mSpeed = 750.0f;
 };

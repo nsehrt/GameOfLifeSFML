@@ -35,8 +35,8 @@ bool Gol::run()
     float moveSpeed = 0.0f;
     sf::Time calcTime{};
 
-    float zoom = 1.0f;
-    float zoomAmount = 1.1f;
+    float zoomCurrent = 1.0f;
+    float zoomAmount = 1.05f;
 
     while(window.isOpen())
     {
@@ -60,12 +60,27 @@ bool Gol::run()
             if(event.type == sf::Event::MouseWheelScrolled)
             {
                 if(event.mouseWheelScroll.delta > 0)
+                {
                     zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, renderTexture, (1.f / zoomAmount));
+                    zoomCurrent *= (1.f / zoomAmount);
+                }    
                 else if(event.mouseWheelScroll.delta < 0)
+                {
                     zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, renderTexture, zoomAmount);
-
+                    zoomCurrent *= zoomAmount;
+                }
 
             }
+
+            if(event.type == sf::Event::MouseButtonPressed && sf::Mouse::isButtonPressed(sf::Mouse::Middle))
+            {
+                mouseDrag.startDrag();
+            }
+            else if(event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Middle)
+            {
+                mouseDrag.endDrag();
+            }
+
 
             if(event.type == sf::Event::Resized)
             {
@@ -81,35 +96,50 @@ bool Gol::run()
 
         mousePrev = mouseCurr;
 
+        //zoom
+        //{
+        //    if(zoomCurrent > zoomTarget)
+        //    {
+        //        zoomCurrent /= 1.01f;// *gt.getDelta().asSeconds();
+        //    }
+        //    else
+        //    {
+        //        zoomCurrent *= 1.01f;
+        //    }
+        //   
+        //    zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, renderTexture, zoomCurrent);
+        //    
+        //}
+
         sf::View mainView = renderTexture.getView();
 
         //view move
-        sf::Vector2f translation{ 0.f,0.f };
+        //sf::Vector2f translation{ 0.f,0.f };
 
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        {
-            translation.y -= 500.f;
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        {
-            translation.y += 500.f;
-            
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        {
-            translation.x -= 500.f;
+        //if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+        //{
+        //    translation.y -= 1.f;
+        //}
+        //if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+        //{
+        //    translation.y += 1.f;
+        //    
+        //}
+        //if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+        //{
+        //    translation.x -= 1.f;
  
-        }
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        {
-            translation.x += 500.f;
-        }
+        //}
+        //if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+        //{
+        //    translation.x += 1.f;
+        //}
 
-        const auto normTranslation = sfm::vec2Normalize(translation);
+        //const auto normTranslation = sfm::vec2Normalize(translation);
 
-        moveSpeed = sfm::vec2Magnitude(normTranslation);
+        //moveSpeed = sfm::vec2Magnitude(normTranslation);
 
-        mainView.move(normTranslation * mSpeed * fTime);
+        //mainView.move(normTranslation * mSpeed * fTime);
 
 
         //process mouse
@@ -117,6 +147,10 @@ bool Gol::run()
         const auto mousePos = sf::Mouse::getPosition(window) + mPos;
         mouseCurr = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 
+        mouseDrag.setSpeed(zoomCurrent);
+        mouseDrag.update(mainView);
+
+        
 
         if(gs == GState::Playing)
         {

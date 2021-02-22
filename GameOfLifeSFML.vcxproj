@@ -169,6 +169,7 @@
     <ClInclude Include="src\gametime.h" />
     <ClInclude Include="src\gol.h" />
     <ClInclude Include="src\grid.h" />
+    <ClInclude Include="src\mousedrag.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

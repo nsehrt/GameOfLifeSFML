@@ -39,6 +39,9 @@
     <ClInclude Include="src\cell.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\mousedrag.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GameOfLifeSFML.sln" />
