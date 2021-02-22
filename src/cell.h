@@ -1,8 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <array>
 
+//drawable cell
 class Cell : public sf::RectangleShape
 {
     public:
@@ -18,11 +18,11 @@ class Cell : public sf::RectangleShape
 
         if(mAlive)
         {
-            setFillColor(sf::Color::Green);
+            setFillColor(aliveColor);
         }
         else
         {
-            setFillColor(sf::Color::Red);
+            setFillColor(deadColor);
         }
     }
 
@@ -47,43 +47,12 @@ class Cell : public sf::RectangleShape
         return gridPos.y;
     }
 
-    static int getAliveNeighbours(const std::vector<Cell>& grid, int x, int y)
-    {
-        int numNeighbours = 0;
-
-        static const std::array<std::pair<int, int>, 8> possible = {
-            std::make_pair(-1,-1), {0,-1},{1,-1},
-            {-1,0},{1,0},
-            {-1,1}, {0,1}, {1,1}
-        };
-
-        for(auto& [xp, yp] : possible)
-        {
-            int newX = x + xp;
-            int newY = y + yp;
-
-            if(newX < 0 || newX >= 60)
-                continue;
-
-            if(newY < 0 || newY >= 45)
-                continue;
-
-            int index = newX + newY * 60;
-
-            if(grid[index].getStatus())
-                numNeighbours++;
-
-            if(numNeighbours == 4) break;
-        }
-
-
-
-        return numNeighbours;
-    }
+    sf::Color aliveColor = sf::Color::Green;
+    sf::Color deadColor = sf::Color::Red;
 
     private:
 
     bool mAlive = false;
     sf::Vector2<int> gridPos{};
-
+    
 };

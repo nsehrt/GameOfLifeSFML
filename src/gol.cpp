@@ -12,31 +12,32 @@ void Gol::init()
 
     ImGui::SFML::Init(window);
 
-    cells.reserve(60 * 45);
+    cells.reserve(5000);
+    toDelete.reserve(1000);
+    newCells.reserve(1000);
 
-    for(int i = 0; i < 60 * 45; i++)
-    {
-        Cell cell{};
-
-        cell.setGridPos(i % 60, i / 60);
-
-        cells.push_back(cell);
-    }
 }
 
 bool Gol::run()
 {
     gt.reset();
     float stepTimer = 0.0f;
-    float stepTime = 1.0f;
+    float stepTime = 0.25f;
     int amountAlive = 0;
+
     bool mousePrev = false;
     bool mouseCurr = false;
+
     float moveSpeed = 0.0f;
     sf::Time calcTime{};
 
     float zoomCurrent = 1.0f;
     float zoomAmount = 1.05f;
+    std::array<float, 3> bgColor{0.f};
+    sf::Color sfColor{32, 84, 91};
+    bgColor[0] = sfColor.r / 255.f;
+    bgColor[1] = sfColor.g / 255.f;
+    bgColor[2] = sfColor.b / 255.f;
 
     while(window.isOpen())
     {
@@ -96,57 +97,14 @@ bool Gol::run()
 
         mousePrev = mouseCurr;
 
-        //zoom
-        //{
-        //    if(zoomCurrent > zoomTarget)
-        //    {
-        //        zoomCurrent /= 1.01f;// *gt.getDelta().asSeconds();
-        //    }
-        //    else
-        //    {
-        //        zoomCurrent *= 1.01f;
-        //    }
-        //   
-        //    zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, renderTexture, zoomCurrent);
-        //    
-        //}
-
         sf::View mainView = renderTexture.getView();
-
-        //view move
-        //sf::Vector2f translation{ 0.f,0.f };
-
-        //if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-        //{
-        //    translation.y -= 1.f;
-        //}
-        //if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-        //{
-        //    translation.y += 1.f;
-        //    
-        //}
-        //if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-        //{
-        //    translation.x -= 1.f;
- 
-        //}
-        //if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-        //{
-        //    translation.x += 1.f;
-        //}
-
-        //const auto normTranslation = sfm::vec2Normalize(translation);
-
-        //moveSpeed = sfm::vec2Magnitude(normTranslation);
-
-        //mainView.move(normTranslation * mSpeed * fTime);
-
 
         //process mouse
         const sf::Vector2<int> mPos{ (int)mainView.getCenter().x - (int)renderTexture.getSize().x / 2, (int)mainView.getCenter().y - (int)renderTexture.getSize().y / 2 };
         const auto mousePos = sf::Mouse::getPosition(window) + mPos;
         mouseCurr = sf::Mouse::isButtonPressed(sf::Mouse::Left);
 
+        //update mouse drag
         mouseDrag.setSpeed(zoomCurrent);
         mouseDrag.update(mainView);
 
@@ -162,13 +120,60 @@ bool Gol::run()
                 sf::Clock cClock{};
                 stepTimer -= stepTime;
                 amountAlive = 0;
+                amountSteps++;
+
+                static const std::array<PosPair, 8> possible = {
+                    std::make_pair(-1,-1), {0,-1},{1,-1},
+                    {-1,0},{1,0},
+                    {-1,1}, {0,1}, {1,1}
+                                };
+
+                //delete all dead cells
+                toDelete.clear();
+
+                for(const auto& [pos, cell] : cells)
+                {
+                    if(cell.getStatus() == false)
+                        toDelete.push_back(pos);
+                }
+                
+                for(const auto& pos : toDelete)
+                {
+                    cells.erase(pos);
+                }
+
+                //fill in dead cells around live ones
+                newCells.clear();
+
+                for(const auto& [pos, cell] : cells)
+                {
+                    for(const auto& [xp,yp] : possible)
+                    {
+                        const int newX = pos.first + xp;
+                        const int newY = pos.second + yp;
+
+                        if(!existsCellAtPosition({ newX,newY }))
+                        {
+                            Cell newCell{};
+                            newCell.setGridPos(newX, newY);
+                            newCell.setStatus(false);
+                            newCells.push_back(newCell);
+                        }
+
+                    }
+                }
+
+                for(auto& cell : newCells)
+                {
+                    cells[{cell.getGridX(), cell.getGridY()}] = cell;
+                }
 
                 //get all alive cells
                 std::vector<Cell*> toAlive{}, toDead{};
 
-                for(auto& cell : cells)
+                for(auto& [pos, cell] : cells)
                 {
-                    int neighbours = Cell::getAliveNeighbours(cells, cell.getGridX(), cell.getGridY());
+                    int neighbours = getAliveNeighbours(cells, { cell.getGridX(), cell.getGridY() });
 
                     if(cell.getStatus())
                     {
@@ -200,59 +205,99 @@ bool Gol::run()
         }
 
 
+        //toggle the status of a cell
         if(!mouseCurr && mousePrev && gs == GState::Drawing
            && !ImGui::GetIO().WantCaptureMouse)
         {
+
+            //create new cell or delete it
+
             sf::Vector2i PixelPos = sf::Mouse::getPosition(window);
             int x = static_cast<sf::Vector2i>(window.mapPixelToCoords(PixelPos, renderTexture.getView())).x / 20;
             int y = static_cast<sf::Vector2i>(window.mapPixelToCoords(PixelPos, renderTexture.getView())).y / 20;
 
-            int pos = x + (y * 60);
-            if(pos < 60 * 45 && pos >= 0)
-                cells[pos].setStatus(!cells[pos].getStatus());
+            bool exists = existsCellAtPosition({ x,y });
+
+            if(!exists)
+            {
+                Cell newCell{};
+                newCell.setGridPos(x, y);
+                newCell.setStatus();
+                cells[{x, y}] = newCell;
+            }
+            else
+            {
+                cells.erase({ x,y });
+            }
         }
 
 
 
-        //render
+        //IMGui setup
         ImGui::SFML::Update(window, deltaTime);
 
-        ImGui::Begin("settings window"); // begin window
+        ImGui::Begin("settings window");
 
 
         if(ImGui::Button(gs == GState::Drawing ? "Play" : "Pause"))
         {
             gs = gs == GState::Drawing ? GState::Playing : GState::Drawing;
+            if(gs == GState::Playing) amountSteps = 0;
         }
 
-        // Window title text edit
-        //ImGui::Text("Move speed: %.2f", moveSpeed);
         ImGui::Text("Alive cells: %d", amountAlive);
-        ImGui::SliderFloat("Step time", &stepTime, 0.05f, 2.0f);
+        ImGui::Text("Step number: %d", amountSteps);
+        ImGui::Text("Step calc time: %d ms", calcTime.asMilliseconds());
+        ImGui::SliderFloat("Step time", &stepTime, 0.010f, 1.0f);
+
+        ImGui::Separator();
+
+        if(ImGui::ColorEdit3("Background", bgColor.data()))
+        {
+            sfColor.r = static_cast<sf::Uint8>(bgColor[0] * 255.f);
+            sfColor.g = static_cast<sf::Uint8>(bgColor[1] * 255.f);
+            sfColor.b = static_cast<sf::Uint8>(bgColor[2] * 255.f);
+        }
+
+        ImGui::Checkbox("Draw to be checked cells", &drawCheckCells);
+        ImGui::Checkbox("Draw grid", &drawGrid);
 
         ImGui::End();
 
-        renderTexture.clear();
 
-
+        //render to texture
+        renderTexture.clear(sfColor);
         renderTexture.setView(mainView);
 
-
-
-        for(const auto& c : cells)
+        if(drawCheckCells)
         {
-            renderTexture.draw(c);
+            for(const auto& [k, v] : cells)
+            {
+                renderTexture.draw(v);
+            }
+        }
+        else
+        {
+            for(const auto& [k, v] : cells)
+            {
+                if(v.getStatus())
+                renderTexture.draw(v);
+            }
         }
 
-        renderTexture.draw(grid);
+        if(drawGrid)
+        {
+            renderTexture.draw(grid);
+        }
 
         renderTexture.display();
 
         const sf::Texture& texture = renderTexture.getTexture();
         sf::Sprite renderSprite(texture);
 
-        window.clear();
 
+        //final render to window
+        window.clear();
 
         window.draw(renderSprite);
 

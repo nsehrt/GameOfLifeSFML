@@ -6,6 +6,7 @@
 
 namespace sf 
 {
+    //use the mouse to drag a sf::View around
     class MouseDrag
     {
         public:
