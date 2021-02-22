@@ -206,6 +206,13 @@ bool Gol::run()
 
         }
 
+        const sf::Vector2i PixelPos = sf::Mouse::getPosition(window);
+        const sf::Vector2i pxlCoords = sf::Vector2i(window.mapPixelToCoords(PixelPos, mainView));
+        int xGrid = pxlCoords.x / 20;
+        int yGrid = pxlCoords.y / 20;
+
+        if(pxlCoords.x < 0) xGrid -= 1;
+        if(pxlCoords.y < 0) yGrid -= 1;
 
         //toggle the status of a cell
         if(!mouseCurr && mousePrev && gs == GState::Drawing
@@ -214,22 +221,18 @@ bool Gol::run()
 
             //create new cell or delete it
 
-            sf::Vector2i PixelPos = sf::Mouse::getPosition(window);
-            int x = static_cast<sf::Vector2i>(window.mapPixelToCoords(PixelPos, renderTexture.getView())).x / 20;
-            int y = static_cast<sf::Vector2i>(window.mapPixelToCoords(PixelPos, renderTexture.getView())).y / 20;
-
-            bool exists = existsCellAtPosition({ x,y });
+            bool exists = existsCellAtPosition({ xGrid,yGrid });
 
             if(!exists)
             {
                 Cell newCell{};
-                newCell.setGridPos(x, y);
+                newCell.setGridPos(xGrid, yGrid);
                 newCell.setStatus();
-                cells[{x, y}] = newCell;
+                cells[{xGrid, yGrid}] = newCell;
             }
             else
             {
-                cells.erase({ x,y });
+                cells.erase({ xGrid,yGrid });
             }
         }
 
@@ -250,6 +253,8 @@ bool Gol::run()
 
         ImGui::Text("Alive cells: %d", amountAlive);
         ImGui::Text("Step number: %d", amountSteps);
+        ImGui::Text("Mouse grid position: %d %d", xGrid, yGrid);
+        ImGui::Text("Mouse position: %.0f %.0f", pxlCoords.x, pxlCoords.y);
         ImGui::Text("Step calc time: %d ms", calcTime.asMilliseconds());
         ImGui::SliderFloat("Step time", &stepTime, 0.010f, 1.0f);
 
