@@ -251,6 +251,16 @@ bool Gol::run()
             gs = gs == GState::Drawing ? GState::Playing : GState::Drawing;
             if(gs == GState::Playing) amountSteps = 0;
         }
+        ImGui::SameLine();
+        if(ImGui::Button("Clear cells"))
+        {
+            cells.clear();
+            if(gs == GState::Playing)
+            {
+                gs = GState::Drawing;
+                amountSteps = 0;
+            }
+        }
         ImGui::Separator();
 
         ImGui::Text("Alive cells: %d", amountAlive);
