@@ -42,6 +42,12 @@
     <ClInclude Include="src\mousedrag.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\sfm.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="GameOfLifeSFML.sln" />

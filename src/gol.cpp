@@ -62,12 +62,12 @@ bool Gol::run()
 
             if(event.type == sf::Event::MouseWheelScrolled)
             {
-                if(event.mouseWheelScroll.delta > 0)
+                if(event.mouseWheelScroll.delta > 0 && zoomCurrent > 0.05f)
                 {
                     zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, renderTexture, (1.f / zoomAmount));
                     zoomCurrent *= (1.f / zoomAmount);
                 }    
-                else if(event.mouseWheelScroll.delta < 0)
+                else if(event.mouseWheelScroll.delta < 0 && zoomCurrent < 4.5f)
                 {
                     zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, renderTexture, zoomAmount);
                     zoomCurrent *= zoomAmount;
@@ -241,6 +241,8 @@ bool Gol::run()
         //IMGui setup
         ImGui::SFML::Update(window, deltaTime);
 
+        ImGui::SetNextWindowBgAlpha(0.8f);
+
         ImGui::Begin("settings window", NULL, ImGuiWindowFlags_AlwaysAutoResize);
 
 
@@ -255,7 +257,8 @@ bool Gol::run()
         ImGui::Text("Step number: %d", amountSteps);
         ImGui::Text("Mouse grid position: %d %d", xGrid, yGrid);
         ImGui::Text("Mouse position: %d %d", pxlCoords.x, pxlCoords.y);
-        ImGui::Text("Step calc time: %d ms", calcTime.asMilliseconds());
+        ImGui::Text("Zoom level: %.2fx", zoomCurrent);
+        ImGui::Text("Step calc time: %d micro seconds", calcTime.asMicroseconds());
         ImGui::SliderFloat("Step time", &stepTime, 0.010f, 1.0f);
 
         ImGui::Separator();
