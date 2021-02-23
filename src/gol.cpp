@@ -241,9 +241,10 @@ bool Gol::run()
         //IMGui setup
         ImGui::SFML::Update(window, deltaTime);
 
+
         ImGui::SetNextWindowBgAlpha(0.8f);
 
-        ImGui::Begin("settings window", NULL, ImGuiWindowFlags_AlwaysAutoResize);
+        ImGui::Begin("settings", NULL, ImGuiWindowFlags_AlwaysAutoResize);
 
 
         if(ImGui::Button(gs == GState::Drawing ? "Play" : "Stop"))
@@ -261,9 +262,15 @@ bool Gol::run()
                 amountSteps = 0;
             }
         }
+        ImGui::SameLine();
+        if(ImGui::Button("Controls"))
+        {
+            controlWindowOpen = true;
+        }
+
         ImGui::Separator();
 
-        ImGui::Text("Alive cells: %d", amountAlive);
+        ImGui::Text("Cells alive: %d", amountAlive);
         ImGui::Text("Step number: %d", amountSteps);
         ImGui::Text("Mouse grid position: %d %d", xGrid, yGrid);
         ImGui::Text("Mouse position: %d %d", pxlCoords.x, pxlCoords.y);
@@ -280,11 +287,23 @@ bool Gol::run()
             sfColor.b = static_cast<sf::Uint8>(bgColor[2] * 255.f);
         }
 
-        ImGui::Checkbox("Draw to be checked cells", &drawCheckCells);
+        ImGui::Checkbox("Draw control cells", &drawCheckCells);
         ImGui::Checkbox("Draw grid", &drawGrid);
 
         ImGui::End();
 
+        if(controlWindowOpen)
+        {
+            ImGui::SetNextWindowBgAlpha(0.8f);
+            ImGui::Begin("controls", &controlWindowOpen, ImGuiWindowFlags_AlwaysAutoResize);
+
+            ImGui::BulletText("Left mouse click: Enable/disable cell");
+            ImGui::BulletText("Mousewheel: Zoom in/out");
+            ImGui::BulletText("Press mousewheel and drag: Move camera");
+            ImGui::BulletText("Escape: Exit application");
+
+            ImGui::End();
+        }
 
         //render to texture
         renderTexture.clear(sfColor);

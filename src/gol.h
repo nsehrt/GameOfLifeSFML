@@ -88,4 +88,5 @@ class Gol
     bool drawCheckCells = false;
     bool drawGrid = true;
     int amountSteps = 0;
+    bool controlWindowOpen = false;
 };
