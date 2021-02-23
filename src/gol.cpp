@@ -6,7 +6,7 @@ void Gol::init()
     settings.antialiasingLevel = 16;
     window.create(sf::VideoMode(1200, 900), "", sf::Style::Default, settings);
     window.setVerticalSyncEnabled(true);
-    window.setTitle("Game of life SFML");
+    window.setTitle("Game of Life SFML");
 
     renderTexture.create(1200, 900, settings);
 
@@ -298,6 +298,7 @@ bool Gol::run()
             ImGui::Begin("controls", &controlWindowOpen, ImGuiWindowFlags_AlwaysAutoResize);
 
             ImGui::BulletText("Left mouse click: Enable/disable cell");
+            ImGui::BulletText("This is only possible when not playing.");
             ImGui::BulletText("Mousewheel: Zoom in/out");
             ImGui::BulletText("Press mousewheel and drag: Move camera");
             ImGui::BulletText("Escape: Exit application");
