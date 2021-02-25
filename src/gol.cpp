@@ -89,7 +89,9 @@ bool Gol::run()
             {
                 // update the view to the new size of the window
                 sf::FloatRect visibleArea(0.f, 0.f, static_cast<float>(event.size.width), static_cast<float>(event.size.height));
-                renderTexture.setView(sf::View(visibleArea));
+                sf::View newView = sf::View(visibleArea);
+                newView.zoom(zoomCurrent);
+                renderTexture.setView(newView);
             }
 
         }
