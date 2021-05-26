@@ -62,7 +62,7 @@ bool Gol::run()
 
             if(event.type == sf::Event::MouseWheelScrolled)
             {
-                if(event.mouseWheelScroll.delta > 0 && zoomCurrent > 0.05f)
+                if(event.mouseWheelScroll.delta > 0 && zoomCurrent > 0.1f)
                 {
                     zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, renderTexture, (1.f / zoomAmount));
                     zoomCurrent *= (1.f / zoomAmount);
@@ -71,6 +71,17 @@ bool Gol::run()
                 {
                     zoomViewAt({ event.mouseWheelScroll.x, event.mouseWheelScroll.y }, renderTexture, zoomAmount);
                     zoomCurrent *= zoomAmount;
+                }
+
+                const float minOpLevel = 1.5f;
+                const float maxOpLevel = 5.0f;
+                if(zoomCurrent > minOpLevel)
+                {
+                    grid.setOpacity((1 - (std::clamp(zoomCurrent, minOpLevel, maxOpLevel) - minOpLevel) / (maxOpLevel-minOpLevel)));
+                }
+                else
+                {
+                    grid.setOpacity();
                 }
 
             }

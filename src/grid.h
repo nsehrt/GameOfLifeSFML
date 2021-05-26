@@ -10,8 +10,8 @@ namespace sf
         public:
 
         //contruct the grid with x columns, y rows and a tile size. default color is white
-        explicit Grid(int tileSize = 32, int columns = 500, int rows = 500)
-            : mColumns(columns), mRows(rows), mTileSize(tileSize), mArray(sf::Lines, (columns + rows)*2)
+        explicit Grid(int tileSize = 32, int columns = 1000, int rows = 1000)
+            : mColumns(columns), mRows(rows), mTileSize(tileSize), mArray(sf::Lines, (columns + rows)*2), mColor(sf::Color::White)
         {
             
             int index = 0;
@@ -32,7 +32,7 @@ namespace sf
             }
 
             //default color
-            setColor(sf::Color::White);
+            setColor(mColor);
         }
 
         //set the grid's color
@@ -44,7 +44,15 @@ namespace sf
             }
         }
 
-
+        void setOpacity(float opacity = 1.0f)
+        {
+            opacity = opacity < 0.f ? 0.f : opacity;
+            sf::Color newColor = sf::Color(mColor.r, mColor.g, mColor.b, static_cast<std::uint8_t>(255.0f * opacity));
+            for(int i = 0; i < mArray.getVertexCount(); i++)
+            {
+                mArray[i].color = newColor;
+            }
+        }
 
         private:
 
@@ -59,7 +67,7 @@ namespace sf
                                          view.getCenter().y - viewSize.y };
             
             //do not draw if too far zoomed out
-            if(viewSize.x < 6000.f && viewSize.y < 6000.f)
+            if(viewSize.x < 10000.f && viewSize.y < 10000.f)
             {
                 //translate grid, so that it appears to be infinite
                 const float tileSizeF = static_cast<float>(mTileSize);
@@ -71,7 +79,7 @@ namespace sf
             
         }
 
-
+        sf::Color mColor;
         sf::VertexArray mArray;
         int mColumns;
         int mRows;
